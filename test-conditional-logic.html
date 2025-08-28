@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Conditional Sensus Logic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; }
+        .question { margin: 10px 0; }
+        .answer { margin: 5px 0 5px 20px; }
+        .pass { color: green; }
+        .fail { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test Conditional Sensus Logic</h1>
+    
+    <div class="test-section">
+        <h2>Test Data Summary</h2>
+        <p><strong>Questions in database:</strong></p>
+        <div class="question">1. Apakah Anda akan datang ke TPS dan memilih salah satu calon walikota dan wakilnya pada tanggal 27 Agustus 2025?</div>
+        <div class="question">2. Apakah Anda akan memilih pasangan nomor 3 Bapak Saparudin dan Ibu Dessy Ayutrismo pada pilkada bulan ini?</div>
+        <div class="answer">- Ya (id: 5)</div>
+        <div class="answer">- Tidak (id: 6)</div>
+        <div class="answer">- Ragu-ragu (id: 7)</div>
+        <div class="question">3. Baik, terima kasih. Apa harapan Bapak/Ibu dengan calon walikota yang akan Anda pilih?</div>
+        <div class="question">4. Apa yang Anda inginkan agar dapat berubah pikiran dan memilih pasangan nomor 3?</div>
+        <div class="question">5. Apa yang membuat Anda ragu-ragu memilih pasangan nomor 3?</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Expected Conditional Logic</h2>
+        <p><strong>Rule:</strong> Only 3 questions should be displayed at a time:</p>
+        <ul>
+            <li>Question 1: Always shown</li>
+            <li>Question 2: Always shown (key conditional question)</li>
+            <li>Conditional question based on Question 2 answer:
+                <ul>
+                    <li>If "Ya" (id: 5) → Show Question 3</li>
+                    <li>If "Tidak" (id: 6) → Show Question 4</li>
+                    <li>If "Ragu-ragu" (id: 7) → Show Question 5</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Implementation Details</h2>
+        <p><strong>Key changes made:</strong></p>
+        <ul>
+            <li>✅ Created <code>visibleQuestions</code> computed property</li>
+            <li>✅ Modified template to use <code>visibleQuestions</code> instead of <code>questions</code></li>
+            <li>✅ Added logic to clear conditional responses when Question 2 changes</li>
+            <li>✅ Updated form validation to only check visible questions</li>
+            <li>✅ Updated submit handler to only include responses from visible questions</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Instructions</h2>
+        <ol>
+            <li>Navigate to: <code>http://localhost:8000</code></li>
+            <li>Login with volunteer credentials</li>
+            <li>Search for a voter (e.g., ID 49462)</li>
+            <li>Go to survey form</li>
+            <li>Test each scenario:
+                <ul>
+                    <li><strong>Scenario 1:</strong> Answer Question 2 with "Ya" → Should show Question 3</li>
+                    <li><strong>Scenario 2:</strong> Answer Question 2 with "Tidak" → Should show Question 4</li>
+                    <li><strong>Scenario 3:</strong> Answer Question 2 with "Ragu-ragu" → Should show Question 5</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <script>
+        // Simple JavaScript to test the logic
+        const questions = [
+            {id: 1, order_number: 1, question_text: "Question 1"},
+            {id: 2, order_number: 2, question_text: "Question 2"},
+            {id: 3, order_number: 3, question_text: "Question 3"},
+            {id: 4, order_number: 4, question_text: "Question 4"},
+            {id: 5, order_number: 5, question_text: "Question 5"}
+        ];
+
+        function testVisibleQuestions(answerOptionId) {
+            const baseQuestions = questions.filter(q => q.order_number <= 2);
+            
+            let conditionalQuestion = null;
+            if (answerOptionId === 5) { // Ya
+                conditionalQuestion = questions.find(q => q.order_number === 3);
+            } else if (answerOptionId === 6) { // Tidak
+                conditionalQuestion = questions.find(q => q.order_number === 4);
+            } else if (answerOptionId === 7) { // Ragu-ragu
+                conditionalQuestion = questions.find(q => q.order_number === 5);
+            }
+            
+            return conditionalQuestion 
+                ? [...baseQuestions, conditionalQuestion]
+                : baseQuestions;
+        }
+
+        // Test scenarios
+        console.log("Test Results:");
+        console.log("Scenario 1 - Answer 'Ya' (id: 5):", testVisibleQuestions(5).map(q => q.order_number));
+        console.log("Scenario 2 - Answer 'Tidak' (id: 6):", testVisibleQuestions(6).map(q => q.order_number));
+        console.log("Scenario 3 - Answer 'Ragu-ragu' (id: 7):", testVisibleQuestions(7).map(q => q.order_number));
+        console.log("No answer:", testVisibleQuestions(null).map(q => q.order_number));
+    </script>
+</body>
+</html>

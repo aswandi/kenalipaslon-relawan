@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Placeholder Icons</title>
+</head>
+<body>
+    <script>
+        // Function to create a simple red icon with KP text
+        function createIcon(size) {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Red background
+            ctx.fillStyle = '#dc2626';
+            ctx.fillRect(0, 0, size, size);
+            
+            // White circle
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(size/2, size/2, size*0.35, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // KP text
+            ctx.fillStyle = '#dc2626';
+            ctx.font = `bold ${size*0.3}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('KP', size/2, size/2);
+            
+            return canvas;
+        }
+        
+        // Create and download icons
+        const icon192 = createIcon(192);
+        const icon512 = createIcon(512);
+        
+        // Convert to blob and create download links
+        icon192.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'icon-192x192.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 'image/png');
+        
+        setTimeout(() => {
+            icon512.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'icon-512x512.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/png');
+        }, 1000);
+        
+        document.body.innerHTML = '<h2>Icons are being downloaded...</h2><p>Check your Downloads folder for icon-192x192.png and icon-512x512.png</p>';
+    </script>
+</body>
+</html>
